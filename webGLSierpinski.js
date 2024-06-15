@@ -111,5 +111,9 @@ function drawSierpinskiTriangle(x1, y1, x2, y2, x3, y3, level) {
         drawSierpinskiTriangle(x31, y31, x23, y23, x3, y3, level-1);
     }
 }
-drawSierpinskiTriangle(initialPositions[0], initialPositions[1], initialPositions[2], initialPositions[3], initialPositions[4], initialPositions[5], levels);
+drawSierpinskiTriangle(
+    initialPositions[0], initialPositions[1], 
+    initialPositions[2], initialPositions[3], 
+    initialPositions[4], initialPositions[5], 
+    levels);
 }
