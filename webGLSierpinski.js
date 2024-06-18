@@ -41,12 +41,8 @@ var program = createProgram(gl, vertexShader, fragmentShader);
 var positionAttributeLocation = gl.getAttribLocation(program, "a_position");
 var positionBuffer = gl.createBuffer();
 gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
-var positions = [
-    -1, -0.577, //bottom left corner
-    1, -0.577, //bottom right corner
-    0, 1, //top corner
-];
-gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(positions), gl.STATIC_DRAW);
+
+//gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(positions), gl.STATIC_DRAW);
 
 //rendering code starts here
 //resize canvas
@@ -83,7 +79,12 @@ var offset = 0; // start at the beginning of the buffer
 gl.vertexAttribPointer(positionAttributeLocation, size, type, normalize, stride, offset);
 
 //draw sierpinski triangle
-var levels =  4//number of levels of recursion
+var positions = [
+    -1, -0.5, //bottom left corner
+    1, -0.5, //bottom right corner
+    0, 1, //top corner
+];
+var levels =  1//number of levels of recursion
 initialPositions =  positions.slice();
 
 function drawSierpinskiTriangle(x1, y1, x2, y2, x3, y3, level) {
@@ -100,8 +101,8 @@ function drawSierpinskiTriangle(x1, y1, x2, y2, x3, y3, level) {
         gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(positions), gl.STATIC_DRAW);
 
         gl.drawArrays(gl.TRIANGLES, 0, 3);
-        console.log(positionBuffer);
-        return;
+        
+        
     } else {
         // Calculate midpoints of edges
         var x12 = (x1 + x2) / 2;
