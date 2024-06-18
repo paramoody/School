@@ -1,7 +1,8 @@
 var canvas = document.querySelector("#c");
 var gl = canvas.getContext("webgl");
-if (gl){
-
+if (!gl){
+    alert("no webgl for you!")
+}else{
 //function to create either a vertex shader or fragment shader
 function createShader(gl, type, source){
     var shader = gl.createShader(type);
@@ -42,15 +43,15 @@ var positionAttributeLocation = gl.getAttribLocation(program, "a_position");
 var positionBuffer = gl.createBuffer();
 gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
 var positions = [
-    -1, -0.577, //bottom left corner
-    1, -0.577, //bottom right corner
-    0, 1, //top corner
+    1, -1, //bottom right
+    0, 1, //top
+    -1, -1,//bottom left
 ];
 gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(positions), gl.STATIC_DRAW);
 
 //rendering code starts here
 //resize canvas
-
+//webglUtils.resizeCanvasToDisplaySize(gl.canvas)
 function resizeCanvasToDisplaySize(canvas){
     const displayWidth = canvas.clientWidth;
     const displayHeight = canvas.clientHeight;
@@ -60,7 +61,6 @@ function resizeCanvasToDisplaySize(canvas){
     }
 }
 resizeCanvasToDisplaySize(gl.canvas);
-
 
 //convert clipspace into screen space. -1, 1 in clip space maps to 0,width 
 //or 0, height in screen pixels 
@@ -79,52 +79,34 @@ var size = 2; //2 components per iteration
 var type = gl.FLOAT;// the data is 32bit floats
 var normalize = false; // use the data as-is, don't normalize to (0,1) or (-1, 1)
 var stride = 0 // each attribute is located immedietly after the previous one in memory
-var offset = 0; // start at the beginning of the buffer
+offset = 0; // start at the beginning of the buffer
 gl.vertexAttribPointer(positionAttributeLocation, size, type, normalize, stride, offset);
 
-//draw sierpinski triangle
-var levels =  4//number of levels of recursion
-initialPositions =  positions.slice();
-
-function drawSierpinskiTriangle(x1, y1, x2, y2, x3, y3, level) {
-
-    console.log("drawing level ", level)
-    if (level === 0) {
-       console.log("Reached base level, drawing triangle:", x1, y1, x2, y2, x3, y3);
-
-        var positions = [
-            x1, y1,
-            x2, y2,
-            x3, y3,
-        ]
-        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(positions), gl.STATIC_DRAW);
-
-        gl.drawArrays(gl.TRIANGLES, 0, 3);
-        console.log(positionBuffer);
-        return;
-    } else {
-        // Calculate midpoints of edges
-        var x12 = (x1 + x2) / 2;
-        var y12 = (y1 + y2) / 2;
-        var x23 = (x2 + x3) / 2;
-        var y23 = (y2 + y3) / 2;
-        var x31 = (x3 + x1) / 2;
-        var y31 = (y3 + y1) / 2;
-
-        console.log("Midpoints:", [x12, y12], [x23, y23], [x31, y31]);
-
-        // Recursively draw the three smaller triangles
-        
-        drawSierpinskiTriangle(x1, y1, x12, y12, x31, y31, level-1);
-        drawSierpinskiTriangle(x12, y12, x2, y2, x23, y23, level-1);
-        drawSierpinskiTriangle(x31, y31, x23, y23, x3, y3, level-1);
+//tell webgl to execute the glsl program
+var primitiveType = gl.TRIANGLES;
+var offset = 0;
+var count = 3;
+//gl.drawArrays(primitiveType, offset, count);
+const EDGE_POINTS = [
+    [-1, -1],
+    [1, -1],
+    [0,1]
+];
+let startingPoint = [0,0];
+let pointCount = 1000 * 800;
+const pointList = [];
+const levels = 6;
+function mix (pointA, pointB, mix){
+    return[
+    pointA[0] * mix + pointB[0] * (1 - mix),
+    pointA[1] * mix + pointB[1] * (1 - mix)
+    ]
+}
+function generateTriangles(edgePoints, depth){
+    if (depth === 0){
+        pointList.push(...edgePoints[0]);
+        pointList.push(...edgePoints[1]);
+        return pointList.push(...edgePoints[2]);
     }
 }
-drawSierpinskiTriangle(
-    initialPositions[0], initialPositions[1], 
-    initialPositions[2], initialPositions[3], 
-    initialPositions[4], initialPositions[5], 
-    levels);
-}else{
-    alert("no webgl for you!");
-}    
+}
